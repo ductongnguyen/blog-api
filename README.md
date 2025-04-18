@@ -20,10 +20,6 @@ This project has 4 layer :
 - Usecase Layer
 - Delivery Layer
 
-#### The diagram:
-
-![golang clean architecture](https://github.com/bxcodec/blog-api/raw/master/clean-arch.png)
-
 ### Requirement
 - Golang 1.20 or highest
 - MySQL 8.0 or highest
