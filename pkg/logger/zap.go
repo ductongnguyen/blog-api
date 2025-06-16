@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/ductong169z/blog-api/config"
-	"github.com/ductong169z/blog-api/pkg/converter"
+	"github.com/ductong169z/shorten-url/config"
+	"github.com/ductong169z/shorten-url/pkg/converter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

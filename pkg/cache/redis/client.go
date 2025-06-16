@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/ductong169z/blog-api/config"
+	"github.com/ductong169z/shorten-url/config"
 	"github.com/go-redis/redis/v8"
 )
 

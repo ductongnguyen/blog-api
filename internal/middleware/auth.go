@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ductong169z/blog-api/config"
-	"github.com/ductong169z/blog-api/internal/models"
-	"github.com/ductong169z/blog-api/pkg/errors"
-	"github.com/ductong169z/blog-api/pkg/utils"
+	"github.com/ductong169z/shorten-url/config"
+	"github.com/ductong169z/shorten-url/internal/models"
+	"github.com/ductong169z/shorten-url/pkg/errors"
+	"github.com/ductong169z/shorten-url/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -51,22 +50,38 @@ func (mw *MiddlewareManager) validateJWTToken(tokenString string, c *gin.Context
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		userID, ok := claims["id"].(string)
+		userIdFloat, ok := claims["id"].(float64)
 		if !ok {
 			return errors.InvalidJWTClaims
 		}
-
-		userUUID, err := uuid.Parse(userID)
+		userId := int(userIdFloat)
+		
+		userName, ok := claims["username"].(string)
+		if !ok {
+			return errors.InvalidJWTClaims
+		}
+		email, ok := claims["email"].(string)
+		if !ok {
+			return errors.InvalidJWTClaims
+		}
+		role, ok := claims["role"].(string)
+		if !ok {
+			return errors.InvalidJWTClaims
+		}
+		roleStr, err := models.ParseUserRole(role)
 		if err != nil {
-			return err
+			return errors.InvalidJWTClaims
 		}
 
-		user := &models.User{
-			UserID: userUUID,
+		userData := &models.User{
+			ID:       userId,
+			Username: userName,
+			Email:    email,
+			Role:     roleStr,
 		}
 
-		ctx := context.WithValue(c.Request.Context(), utils.UserCtxKey{}, user)
-		c.Request.WithContext(ctx)
+		ctx := context.WithValue(c.Request.Context(), utils.UserCtxKey{}, userData)
+		c.Request = c.Request.WithContext(ctx)
 	}
 	return nil
 }

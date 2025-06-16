@@ -20,3 +20,12 @@ docker-down:
 
 generate:
 	go generate ./...
+
+swagger:
+	swag init -g cmd/api/main.go -o docs
+
+migrate-up:
+	migrate -path migrations -database "mysql://$(MYSQL_URI)" up
+
+migrate-down:
+	migrate -path migrations -database "mysql://$(MYSQL_URI)" down

@@ -1,0 +1,49 @@
+type User {
+  id: Int!
+  username: String!
+  email: String!
+  role: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type AuthResponse {
+  token: String!
+  expiresAt: String!
+  refreshToken: String!
+  refreshTokenExpiresAt: String!
+  user: User!
+}
+
+type RefreshTokenResponse {
+  token: String!
+  expiresAt: String!
+  refreshToken: String!
+  refreshExpiresAt: String!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+input RegisterInput {
+  username: String!
+  email: String!
+  password: String!
+  role: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+type Query {
+  user(id: Int!): User
+}
+
+type Mutation {
+  login(input: LoginInput!): AuthResponse!
+  register(input: RegisterInput!): User!
+  refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
+}

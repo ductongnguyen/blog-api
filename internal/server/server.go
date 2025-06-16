@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ductong169z/blog-api/config"
-	"github.com/ductong169z/blog-api/pkg/cache/redis"
-	"github.com/ductong169z/blog-api/pkg/logger"
+	"github.com/ductong169z/shorten-url/config"
+	"github.com/ductong169z/shorten-url/pkg/cache/redis"
+	"github.com/ductong169z/shorten-url/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

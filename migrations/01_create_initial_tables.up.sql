@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(50) NOT NULL UNIQUE,
   `email` VARCHAR(255) NOT NULL UNIQUE,
-  `password_hash` VARCHAR(255) NOT NULL, -- Store hashed passwords (e.g., bcrypt)
+  `password` VARCHAR(255) NOT NULL, -- Store hashed passwords (e.g., bcrypt)
   `role` VARCHAR(20) NOT NULL DEFAULT 'user', -- 'admin', 'user'
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

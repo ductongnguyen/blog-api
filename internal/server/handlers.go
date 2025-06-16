@@ -3,15 +3,23 @@ package server
 import (
 	"context"
 
-	authHttp "github.com/ductong169z/blog-api/internal/auth/delivery/http"
-	authRepository "github.com/ductong169z/blog-api/internal/auth/repository"
-	authUseCase "github.com/ductong169z/blog-api/internal/auth/usecase"
-	apiMiddlewares "github.com/ductong169z/blog-api/internal/middleware"
-	newsHttp "github.com/ductong169z/blog-api/internal/news/delivery/http"
-	newsRepository "github.com/ductong169z/blog-api/internal/news/repository"
-	newsUseCase "github.com/ductong169z/blog-api/internal/news/usecase"
-	"github.com/ductong169z/blog-api/pkg/metric"
+	authHttp "github.com/ductong169z/shorten-url/internal/auth/delivery/http"
+	authGraphQL "github.com/ductong169z/shorten-url/internal/auth/delivery/graphql"
+	authRepository "github.com/ductong169z/shorten-url/internal/auth/repository"
+	authUseCase "github.com/ductong169z/shorten-url/internal/auth/usecase"
+	apiMiddlewares "github.com/ductong169z/shorten-url/internal/middleware"
+
+	shortHttp "github.com/ductong169z/shorten-url/internal/shortener/delivery/http"
+	shortGraphQL "github.com/ductong169z/shorten-url/internal/shortener/delivery/graphql"
+	shortRepository "github.com/ductong169z/shorten-url/internal/shortener/repository"
+	shortUseCase "github.com/ductong169z/shorten-url/internal/shortener/usecase"
+
+	"github.com/ductong169z/shorten-url/pkg/metric"
 	"github.com/gin-contrib/requestid"
+
+	// Swagger UI imports
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // Map Server Handlers
@@ -31,18 +39,20 @@ func (s *Server) MapHandlers() error {
 	metrics.SetSkipPath([]string{"readiness"})
 
 	// Init repositories
-	nRepo := newsRepository.NewNewsRepository(s.db)
-	newsRedisRepo := newsRepository.NewNewsRedisRepo(s.redis)
 	authRepo := authRepository.NewRepository(s.db)
 	authRedisRepo := authRepository.NewRedisRepo(s.redis)
 
+	shortRepo := shortRepository.NewRepository(s.db)
+	shortRedisRepo := shortRepository.NewRedisRepo(s.redis)
+
 	// Init useCases
-	newsUC := newsUseCase.NewNewsUseCase(s.cfg, nRepo, newsRedisRepo, s.logger)
 	authUC := authUseCase.NewUseCase(s.cfg, authRepo, authRedisRepo, s.logger)
 
+	shortUC := shortUseCase.NewUseCase(s.cfg, shortRepo, shortRedisRepo, s.logger)
+
 	// Init handlers
-	newsHandlers := newsHttp.NewNewsHandlers(s.cfg, newsUC, s.logger)
 	authHandlers := authHttp.NewHandlers(s.cfg, authUC, s.logger)
+	shortHandlers := shortHttp.NewHandlers(s.cfg, shortUC, s.logger)
 
 	mw := apiMiddlewares.NewMiddlewareManager(s.cfg, []string{"*"}, s.logger)
 
@@ -50,12 +60,27 @@ func (s *Server) MapHandlers() error {
 	s.gin.Use(mw.MetricsMiddleware(metrics))
 	s.gin.Use(mw.LoggerMiddleware(s.logger))
 
-	v1 := s.gin.Group("/api/v1")
-	newsGroup := v1.Group("/news")
-	authGroup := v1.Group("/auth")
+	// Swagger docs endpoint
+	s.gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	newsHttp.MapNewsRoutes(newsGroup, newsHandlers, mw)
+	v1 := s.gin.Group("/api/v1")
+	noPrefixGroup := s.gin.Group("")
+	authGroup := v1.Group("/auth")
+	shortGroup := noPrefixGroup.Group("")
+	
+	// Create a separate group for GraphQL that doesn't have auth middleware
+	graphqlGroup := v1.Group("/graphql")
+
+	// Register HTTP routes
 	authHttp.MapRoutes(authGroup, authHandlers, mw)
+	shortHttp.MapRoutes(shortGroup, shortHandlers)
+	
+	// Register GraphQL routes - using a separate group that bypasses auth
+	authGraphQL.RegisterGraphQLRoutes(graphqlGroup, s.cfg, authUC, s.logger)
+	
+	// Create a separate group for shortener GraphQL
+	shortGraphQLGroup := v1.Group("/graphql/shortener")
+	shortGraphQL.RegisterGraphQLRoutes(shortGraphQLGroup, s.cfg, shortUC, s.logger)
 
 	return nil
 }

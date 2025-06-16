@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/ductong169z/blog-api/config"
+	"github.com/ductong169z/shorten-url/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

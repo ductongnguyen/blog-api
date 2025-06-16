@@ -4,10 +4,13 @@ import (
 	"context"
 	"log"
 
-	"github.com/ductong169z/blog-api/config"
-	"github.com/ductong169z/blog-api/internal/server"
-	"github.com/ductong169z/blog-api/pkg/database/mysql"
-	"github.com/ductong169z/blog-api/pkg/logger"
+	"github.com/ductong169z/shorten-url/config"
+	"github.com/ductong169z/shorten-url/internal/server"
+	"github.com/ductong169z/shorten-url/pkg/cache/redis"
+	"github.com/ductong169z/shorten-url/pkg/database/mysql"
+	"github.com/ductong169z/shorten-url/pkg/logger"
+
+	_ "github.com/ductong169z/shorten-url/docs" // Swagger docs import
 )
 
 func main() {
@@ -17,12 +20,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("LoadConfig: %v", err)
 	}
-
-	// token, _ := utils.GenerateJWTToken(&models.User{
-	// 	UserID: uuid.New(),
-	// }, cfg)
-
-	// fmt.Println("token: ", token)
 
 	ctx := context.Background()
 	appLogger := logger.NewApiLogger(cfg)
@@ -35,16 +32,16 @@ func main() {
 		appLogger.Fatalf(ctx, "MySQL init: %s", err)
 	}
 
-	// rdb, err := redis.NewClient(&cfg.Redis)
-	// if err != nil {
-	// 	appLogger.Fatalf(ctx, "RedisCluster init: %s", err)
-	// }
+	rdb, err := redis.NewClient(&cfg.Redis)
+	if err != nil {
+		appLogger.Fatalf(ctx, "RedisCluster init: %s", err)
+	}
 
 	s := server.NewServer(
 		cfg,
 		mysqlDB,
 		server.Logger(appLogger),
-		// server.Redis(rdb),
+		server.Redis(rdb),
 	)
 	if err = s.Run(); err != nil {
 		log.Fatal(err)

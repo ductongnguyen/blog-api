@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/ductong169z/blog-api/pkg/metric"
+	"github.com/ductong169z/shorten-url/pkg/metric"
 )
 
 // Prometheus metrics middleware

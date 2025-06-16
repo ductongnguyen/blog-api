@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github.com/ductong169z/blog-api/config"
-	"github.com/ductong169z/blog-api/pkg/logger"
+	"github.com/ductong169z/shorten-url/config"
+	"github.com/ductong169z/shorten-url/pkg/logger"
 )
 
 // Middleware manager

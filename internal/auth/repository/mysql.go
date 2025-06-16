@@ -2,11 +2,14 @@ package repository
 
 import (
 	"context"
+	"errors"
 
-	"github.com/ductong169z/blog-api/internal/auth"
-	"github.com/ductong169z/blog-api/internal/models"
-	"github.com/google/uuid"
+	"github.com/ductong169z/shorten-url/internal/auth"
+	"github.com/ductong169z/shorten-url/internal/models"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+
+	pkgErrors "github.com/ductong169z/shorten-url/pkg/errors"
 )
 
 // News Repository
@@ -20,16 +23,87 @@ func NewRepository(db *gorm.DB) auth.Repository {
 }
 
 // GetUserByID implements auth.Repository.
-func (r *repo) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
-	panic("unimplemented")
+func (r *repo) GetUserByID(ctx context.Context, userId int) (*models.User, error) {
+
+	var user models.User
+	if err := r.db.WithContext(ctx).Where("id = ?", userId).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 // Login implements auth.Repository.
 func (r *repo) Login(ctx context.Context, user *models.User) (*models.User, error) {
-	panic("unimplemented")
+	var u models.User
+
+	if err := r.db.WithContext(ctx).Where("username = ?", user.Username).First(&u).Error; err != nil {
+		return nil, err
+	}
+
+	// Compare hashed password
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(user.Password)); err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	return &u, nil
 }
 
 // Register implements auth.Repository.
 func (r *repo) Register(ctx context.Context, user *models.User) (*models.User, error) {
-	panic("unimplemented")
+	if err := r.db.WithContext(ctx).Create(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+// GetUserByUsername implements auth.Repository.
+func (r *repo) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
+	var user models.User
+	if err := r.db.WithContext(ctx).Where("username = ?", username).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, pkgErrors.NotFound // Return nil if no record is found
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+// GetUserByEmail implements auth.Repository.
+func (r *repo) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+	if err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, pkgErrors.NotFound // Return nil if no record is found
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+// CreateRefreshToken implements auth.Repository.
+func (r *repo) CreateRefreshToken(ctx context.Context, token *models.RefreshToken) error {
+	if err := r.db.WithContext(ctx).Create(token).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetRefreshTokenByToken implements auth.Repository.
+func (r *repo) GetRefreshTokenByToken(ctx context.Context, token string) (*models.RefreshToken, error) {
+	var rt models.RefreshToken
+	if err := r.db.WithContext(ctx).Where("token = ?", token).First(&rt).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, pkgErrors.NotFound // Return nil if no record is found
+		}
+		return nil, err
+	}
+	return &rt, nil
+}
+
+// RevokeRefreshToken implements auth.Repository.
+func (r *repo) RevokeRefreshToken(ctx context.Context, token string) error {
+	if err := r.db.WithContext(ctx).Where("token = ?", token).Delete(&models.RefreshToken{}).Error; err != nil {
+		return err
+	}
+	return nil
 }

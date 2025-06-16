@@ -23,6 +23,8 @@ type ServerConfig struct {
 	WriteTimeout      int    `env:"WRITE_TIMEOUT"`
 	CtxDefaultTimeout int    `env:"CTX_DEFAULT_TIMEOUT"`
 	Debug             bool   `env:"DEBUG"`
+	AppDomain         string `env:"APP_DOMAIN"`
+	ShortURLExpiredAt int    `env:"SHORT_URL_EXPIRED_AT"`
 }
 
 // Metrics config

@@ -9,10 +9,10 @@ import (
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 
-	"github.com/ductong169z/blog-api/internal/models"
-	"github.com/ductong169z/blog-api/pkg/errors"
-	"github.com/ductong169z/blog-api/pkg/logger"
-	"github.com/ductong169z/blog-api/pkg/sanitize"
+	"github.com/ductong169z/shorten-url/internal/models"
+	"github.com/ductong169z/shorten-url/pkg/errors"
+	"github.com/ductong169z/shorten-url/pkg/logger"
+	"github.com/ductong169z/shorten-url/pkg/sanitize"
 )
 
 // Get request id from gin context

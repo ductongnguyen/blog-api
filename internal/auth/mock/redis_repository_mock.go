@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	models "github.com/ductong169z/blog-api/internal/models"
+	models "github.com/ductong169z/shorten-url/internal/models"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -48,4 +48,18 @@ func (m *MockRedisRepository) GetUserByIDCtx(ctx context.Context, key string) (*
 func (mr *MockRedisRepositoryMockRecorder) GetUserByIDCtx(ctx, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByIDCtx", reflect.TypeOf((*MockRedisRepository)(nil).GetUserByIDCtx), ctx, key)
+}
+
+// SetUserByIDCtx mocks base method.
+func (m *MockRedisRepository) SetUserByIDCtx(ctx context.Context, key string, user *models.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetUserByIDCtx", ctx, key, user)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetUserByIDCtx indicates an expected call of SetUserByIDCtx.
+func (mr *MockRedisRepositoryMockRecorder) SetUserByIDCtx(ctx, key, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetUserByIDCtx", reflect.TypeOf((*MockRedisRepository)(nil).SetUserByIDCtx), ctx, key, user)
 }

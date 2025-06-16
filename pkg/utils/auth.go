@@ -1,28 +1,36 @@
 package utils
 
 import (
-	"context"
+	"fmt"
 
-	"github.com/ductong169z/blog-api/pkg/errors"
-	"github.com/ductong169z/blog-api/pkg/logger"
+	"golang.org/x/crypto/bcrypt"
 )
 
-// Validate is user from owner of content
-func ValidateIsOwner(ctx context.Context, creatorID string, logger logger.Logger) error {
-	user, err := GetUserFromCtx(ctx)
+// // Validate is user from owner of content
+// func ValidateIsOwner(ctx context.Context, creatorID string, logger logger.Logger) error {
+// 	user, err := GetUserFromCtx(ctx)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	if user.Id.(String) != creatorID {
+// 		logger.Errorf(
+// 			ctx,
+// 			"ValidateIsOwner, userID: %v, creatorID: %v",
+// 			user.UserID.String(),
+// 			creatorID,
+// 		)
+// 		return errors.Forbidden
+// 	}
+
+// 	return nil
+// }
+
+func HashPasswordBcrypt(password string) (string, error) {
+	hashedPasswordBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return "", fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	if user.UserID.String() != creatorID {
-		logger.Errorf(
-			ctx,
-			"ValidateIsOwner, userID: %v, creatorID: %v",
-			user.UserID.String(),
-			creatorID,
-		)
-		return errors.Forbidden
-	}
-
-	return nil
+	return string(hashedPasswordBytes), nil
 }

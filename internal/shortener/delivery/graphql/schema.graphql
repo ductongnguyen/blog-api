@@ -1,0 +1,21 @@
+type ShortURL {
+  id: Int!
+  originalURL: String!
+  shortCode: String!
+  createdAt: String!
+  updatedAt: String!
+  fullShortURL: String!
+}
+
+input ShortenURLInput {
+  originalURL: String!
+  shortCode: String
+}
+
+type Query {
+  resolveShortCode(code: String!): ShortURL
+}
+
+type Mutation {
+  shortenURL(input: ShortenURLInput!): ShortURL!
+}

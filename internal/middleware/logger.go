@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	pkgLogger "github.com/ductong169z/blog-api/pkg/logger"
-	"github.com/ductong169z/blog-api/pkg/utils"
+	pkgLogger "github.com/ductong169z/shorten-url/pkg/logger"
+	"github.com/ductong169z/shorten-url/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
